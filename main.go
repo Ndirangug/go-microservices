@@ -2,32 +2,31 @@ package main
 
 import (
 	"context"
+	"github.com/go-microservices/handlers"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
-
-	"github.com/go-microservices/handlers"
 )
 
 func main() {
 	logger := log.New(os.Stdout, "[product-api]", log.LstdFlags)
-	helloHandler := handlers.NewHello(logger)
+	productHandler := handlers.NewProducts(logger)
 	goodbyeHandler := handlers.NewGoodbye(logger)
 
 	serveMux := http.NewServeMux()
-	serveMux.Handle("/", helloHandler)
+	serveMux.Handle("/", productHandler)
 	serveMux.Handle("/bye", goodbyeHandler)
 
 	server := &http.Server{
-		Addr: ":9090",
-		Handler: serveMux,
-		IdleTimeout: 120 * time.Second,
-		ReadTimeout: 1 * time.Second,
+		Addr:         ":9090",
+		Handler:      serveMux,
+		IdleTimeout:  120 * time.Second,
+		ReadTimeout:  1 * time.Second,
 		WriteTimeout: 1 * time.Second,
-	} 
-	
+	}
+
 	go func() {
 		err := server.ListenAndServe()
 
@@ -35,13 +34,12 @@ func main() {
 			logger.Fatal(err)
 		}
 	}()
-	
+
 	sigchan := make(chan os.Signal)
 	signal.Notify(sigchan, os.Interrupt)
 	signal.Notify(sigchan, os.Kill)
 
-	logger.Println("Received terminate, graceful shutdown", <- sigchan)
-
-	timeoutContext, _ := context.WithTimeout(context.Background(), 30 * time.Second)
+	logger.Println("Received terminate, graceful shutdown", <-sigchan)
+	timeoutContext, _ := context.WithTimeout(context.Background(), 30*time.Second)
 	server.Shutdown(timeoutContext)
 }

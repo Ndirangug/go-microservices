@@ -11,7 +11,7 @@ type Hello struct {
 	logger *log.Logger
 }
 
-func NewHello(l *log.Logger) *Hello  {
+func NewHello(l *log.Logger) *Hello {
 	return &Hello{l}
 }
 
