@@ -18,6 +18,12 @@ type Product struct {
 	DeletedOn   string  `json:"-"`
 }
 
+func (p *Product) FromJSON(r io.Reader) error {
+	decoder := json.NewDecoder(r)
+	return decoder.Decode(p)
+	
+}
+
 type Products []*Product
 
 // ToJSON serializes the contents of the collection to JSON
